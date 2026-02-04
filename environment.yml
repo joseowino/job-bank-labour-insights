@@ -1,0 +1,45 @@
+name: .venv
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Core Python
+  - python=3.11
+
+  # Data manipulation
+  - pandas
+  - numpy
+  - pyarrow      # required for parquet
+  - fastparquet
+
+  # Visualization
+  - matplotlib
+  - seaborn
+  - plotly
+
+  # Machine learning / statistics (optional but recommended)
+  - scikit-learn
+  - statsmodels
+
+  # Notebooks
+  - jupyterlab
+  - notebook
+  - ipykernel
+
+  # File handling & utilities
+  - openpyxl
+  - xlrd
+  - python-dateutil
+
+  # Progress bars (great for large file ingestion)
+  - tqdm
+
+  # Pip section for packages better installed via pip
+  - pip
+  - pip:
+      - wordcloud        # skills visualization
+      - missingno        # missing data visualization
+      - black           # formatter (professional touch)
+      - isort
