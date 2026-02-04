@@ -82,27 +82,24 @@ def normalize_schema(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def read_csv_file(file_path: Path) -> pd.DataFrame:
-    """
-    Read a CSV safely.
-    """
-    try:
-        df = pd.read_csv(file_path, low_memory=False)
-        df = normalize_schema(df)
+    encodings = ["utf-8", "utf-16", "cp1252", "latin1"]
 
-        df["source_file"] = file_path.name
-        df["source_month"] = extract_month_from_filename(file_path)
+    for encoding in encodings:
+        try:
+            df = pd.read_csv(file_path, encoding=encoding, low_memory=False)
+            logger.info(f"Loaded {file_path.name} using {encoding}")
+            
+            df = normalize_schema(df)
+            df["source_file"] = file_path.name
+            df["source_month"] = extract_month_from_filename(file_path)
 
-        return df
+            return df
 
-    except Exception as e:
-        logger.error(f"Failed to read {file_path.name}: {e}")
-        return pd.DataFrame()
+        except Exception:
+            continue
 
-
-# -----------------------------
-# Main Pipeline
-# -----------------------------
-
+    logger.error(f"Could not decode {file_path.name} with any encoding.")
+    return pd.DataFrame()
 
 def ingest_all_files() -> pd.DataFrame:
     """
@@ -125,6 +122,11 @@ def ingest_all_files() -> pd.DataFrame:
 
         if not df.empty:
             dfs.append(df)
+
+    if not dfs:
+        raise RuntimeError(
+            "No datasets were loaded. Check file encodings or file integrity."
+        )
 
     combined = pd.concat(dfs, ignore_index=True)
 
